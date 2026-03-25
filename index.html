@@ -3,37 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agentic Solopreneur</title>
+    <title>funjun2938 | AI Agent Lab</title>
     <style>
-        body { font-family: 'Pretendard', sans-serif; background: #0f172a; color: #f8fafc; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-        .accent { color: #38bdf8; }
-        .card { background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-top: 30px; }
-        h1 { font-size: 2.5rem; border-bottom: 2px solid #38bdf8; padding-bottom: 10px; }
-        ul { padding-left: 20px; }
-        li { margin-bottom: 10px; }
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 40px 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 60px; }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        
+        /* 프로젝트 카드 스타일 */
+        .card { background: var(--card); border-radius: 15px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; text-decoration: none; color: inherit; display: block; }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .card h3 { color: var(--accent); margin-top: 0; }
+        .tag { font-size: 0.8rem; background: rgba(56, 189, 248, 0.1); color: var(--accent); padding: 4px 10px; border-radius: 5px; margin-bottom: 10px; display: inline-block; }
     </style>
 </head>
 <body>
-    <h1><span class="accent">AI Agent</span> 기반 1인 창업 프로젝트</h1>
-    <p>Claude Code와 GitHub를 활용하여 혼자서도 기업급 인프라를 구축하는 실험 공간입니다.</p>
+    <div class="container">
+        <header>
+            <h1>Agentic <span style="color:white;">Solopreneur Lab</span></h1>
+            <p>AI 에이전트와 함께 구축한 1인 창업 프로젝트 보관소</p>
+        </header>
 
-    <div class="card">
-        <h2>🚀 프로젝트 비전</h2>
-        <ul>
-            <li><strong>AI 에이전트 활용:</strong> 단순 도구를 넘어 '업무 수행 주체'로서의 AI 활용</li>
-            <li><strong>디지털 레버리지:</strong> 코딩과 배포를 자동화하여 1인 기업의 한계 극복</li>
-            <li><strong>지속 가능한 학습:</strong> 기술 스택(GitHub, Python)의 깊이 있는 이해</li>
-        </ul>
+        <div class="project-grid">
+            <a href="projects/fortune/index.html" class="card">
+                <span class="tag">AI & Data</span>
+                <h3>🔮 AI 운명 분석 에이전트</h3>
+                <p>전통 명리학 데이터를 LLM에 학습시켜 개인 맞춤형 운세와 전략을 제안하는 서비스입니다.</p>
+                <span style="color: var(--accent); font-weight: bold;">실행해보기 →</span>
+            </a>
+
+            <a href="projects/pdf-tool/index.html" class="card">
+                <span class="tag">Automation</span>
+                <h3>📄 Smart PDF Converter</h3>
+                <p>워크플로우 자동화를 위해 구축한 PDF-이미지 변환 도구입니다. 복잡한 설치 없이 브라우저에서 즉시 작동합니다.</p>
+                <span style="color: var(--accent); font-weight: bold;">실행해보기 →</span>
+            </a>
+        </div>
+
+        <footer style="margin-top: 80px; text-align: center; color: #64748b;">
+            <p>본 페이지는 GitHub Pages를 통해 배포되었습니다.</p>
+        </div>
     </div>
-
-    <div class="card">
-        <h2>💡 학습 전략 및 성과</h2>
-        <p><strong>Worked:</strong> AI 에이전트에게 구체적인 요구사항을 전달하여 개발 속도를 비약적으로 높임.</p>
-        <p><strong>Insight:</strong> 기술적 구현보다 중요한 것은 AI를 제어하는 '기획력'과 '인프라(GitHub)의 이해'임을 깨달음.</p>
-    </div>
-
-    <footer style="margin-top: 50px; text-align: center; color: #64748b;">
-        © 2026 funjun2938 | KAIST Class Homework
-    </footer>
 </body>
 </html>
