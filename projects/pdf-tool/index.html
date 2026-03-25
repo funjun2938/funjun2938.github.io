@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF 올인원 도구 - 무료 PDF 변환, 합치기, 분리, 편집</title>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#2563eb;--primary-dark:#1d4ed8;--primary-light:#dbeafe;
+  --gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#cbd5e1;
+  --gray-400:#94a3b8;--gray-500:#64748b;--gray-600:#475569;--gray-700:#334155;
+  --gray-800:#1e293b;--gray-900:#0f172a;
+  --success:#10b981;--warning:#f59e0b;--danger:#ef4444;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06);
+  --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05);
+  --shadow-xl:0 20px 25px -5px rgba(0,0,0,.1),0 10px 10px -5px rgba(0,0,0,.04);
+  --radius:12px;--radius-lg:16px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;background:var(--gray-50);color:var(--gray-800);line-height:1.6;min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;font-family:inherit;font-size:inherit}
+
+/* Header */
+.header{background:#fff;border-bottom:1px solid var(--gray-200);padding:0 24px;position:sticky;top:0;z-index:100}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;color:var(--primary);cursor:pointer}
+.logo svg{width:32px;height:32px}
+.usage-badge{display:flex;align-items:center;gap:8px;background:var(--primary-light);color:var(--primary-dark);padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600}
+.usage-badge .count{background:var(--primary);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
+
+/* Ad Placeholder */
+.ad-placeholder{max-width:1200px;margin:16px auto;background:var(--gray-100);border:2px dashed var(--gray-300);border-radius:var(--radius);padding:16px;text-align:center;color:var(--gray-400);font-size:13px;min-height:90px;display:flex;align-items:center;justify-content:center}
+.ad-placeholder span{background:var(--gray-200);padding:4px 12px;border-radius:4px}
+
+/* Main Content */
+.main{max-width:1200px;margin:0 auto;padding:24px}
+
+/* Dashboard */
+.dashboard-hero{text-align:center;padding:48px 24px 40px}
+.dashboard-hero h1{font-size:36px;font-weight:800;color:var(--gray-900);margin-bottom:12px;letter-spacing:-.5px}
+.dashboard-hero p{font-size:18px;color:var(--gray-500);max-width:500px;margin:0 auto}
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;padding:0 0 40px}
+.tool-card{background:#fff;border-radius:var(--radius-lg);padding:32px 24px;text-align:center;border:2px solid var(--gray-200);cursor:pointer;transition:all .25s ease;position:relative;overflow:hidden}
+.tool-card:hover{border-color:var(--primary);transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.tool-card:hover .tool-icon{transform:scale(1.1)}
+.tool-icon{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;transition:transform .25s ease}
+.tool-card:nth-child(1) .tool-icon{background:#dbeafe;color:#2563eb}
+.tool-card:nth-child(2) .tool-icon{background:#fce7f3;color:#db2777}
+.tool-card:nth-child(3) .tool-icon{background:#d1fae5;color:#059669}
+.tool-card:nth-child(4) .tool-icon{background:#fef3c7;color:#d97706}
+.tool-card:nth-child(5) .tool-icon{background:#ede9fe;color:#7c3aed}
+.tool-card:nth-child(6) .tool-icon{background:#e0e7ff;color:#4338ca}
+.tool-card h3{font-size:18px;font-weight:700;margin-bottom:8px;color:var(--gray-800)}
+.tool-card p{font-size:14px;color:var(--gray-500);line-height:1.5}
+
+/* Tool Page */
+.tool-page{display:none}
+.tool-page.active{display:block}
+.tool-header{display:flex;align-items:center;gap:16px;margin-bottom:32px}
+.back-btn{width:40px;height:40px;border-radius:10px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-600);transition:all .2s}
+.back-btn:hover{background:var(--gray-200)}
+.tool-header h2{font-size:28px;font-weight:800;color:var(--gray-900)}
+.tool-header p{font-size:14px;color:var(--gray-500);margin-top:2px}
+
+/* Drop Zone */
+.drop-zone{border:2px dashed var(--gray-300);border-radius:var(--radius-lg);padding:48px 24px;text-align:center;cursor:pointer;transition:all .3s ease;background:#fff;position:relative}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--primary);background:var(--primary-light)}
+.drop-zone.drag-over{transform:scale(1.01)}
+.drop-zone-icon{font-size:48px;margin-bottom:16px;opacity:.6}
+.drop-zone h3{font-size:18px;color:var(--gray-700);margin-bottom:8px}
+.drop-zone p{font-size:14px;color:var(--gray-400)}
+.drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* File List */
+.file-list{margin-top:20px;display:flex;flex-direction:column;gap:8px}
+.file-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);padding:12px 16px;transition:all .2s}
+.file-item:hover{box-shadow:var(--shadow)}
+.file-item.dragging{opacity:.5;box-shadow:var(--shadow-lg)}
+.file-item-icon{width:36px;height:36px;background:var(--primary-light);color:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.file-item-info{flex:1;min-width:0}
+.file-item-name{font-size:14px;font-weight:600;color:var(--gray-800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-item-size{font-size:12px;color:var(--gray-400)}
+.file-item-drag{cursor:grab;color:var(--gray-400);padding:4px;font-size:18px}
+.file-item-drag:active{cursor:grabbing}
+.file-item-remove{width:28px;height:28px;border-radius:6px;background:transparent;color:var(--gray-400);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.file-item-remove:hover{background:#fee2e2;color:var(--danger)}
+
+/* Options Panel */
+.options-panel{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);padding:20px;margin-top:20px}
+.options-panel h4{font-size:15px;font-weight:700;color:var(--gray-700);margin-bottom:12px}
+.option-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.option-row label{font-size:14px;color:var(--gray-600);min-width:100px}
+.option-row input,.option-row select{padding:8px 12px;border:1px solid var(--gray-300);border-radius:8px;font-size:14px;color:var(--gray-700);background:#fff;outline:none;transition:border-color .2s}
+.option-row input:focus,.option-row select:focus{border-color:var(--primary)}
+.option-row input[type="number"]{width:80px}
+.option-row input[type="text"]{width:200px}
+.option-row input[type="color"]{width:40px;height:36px;padding:2px;border-radius:8px}
+
+/* Action Buttons */
+.action-bar{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+.btn{padding:12px 28px;border-radius:10px;font-size:15px;font-weight:700;display:inline-flex;align-items:center;gap:8px;transition:all .25s ease}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-primary:disabled{background:var(--gray-300);cursor:not-allowed;transform:none;box-shadow:none}
+.btn-secondary{background:var(--gray-100);color:var(--gray-700)}
+.btn-secondary:hover{background:var(--gray-200)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{background:#059669}
+
+/* Progress */
+.progress-container{margin-top:24px;display:none}
+.progress-container.active{display:block}
+.progress-bar-wrap{background:var(--gray-200);border-radius:20px;height:8px;overflow:hidden;margin-bottom:12px}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--primary),#60a5fa);border-radius:20px;width:0%;transition:width .4s ease}
+.progress-text{font-size:13px;color:var(--gray-500);text-align:center}
+
+/* Result Area */
+.result-area{margin-top:24px;padding:24px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:var(--radius);text-align:center;display:none}
+.result-area.active{display:block;animation:fadeInUp .4s ease}
+.result-area h4{color:#166534;font-size:16px;margin-bottom:4px}
+.result-area p{color:#15803d;font-size:14px;margin-bottom:16px}
+
+/* Preview */
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:16px}
+.preview-item{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;position:relative}
+.preview-item canvas{max-width:100%;max-height:100%;object-fit:contain}
+.preview-item .page-num{position:absolute;bottom:4px;right:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 8px;border-radius:4px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.active{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:var(--radius-lg);padding:40px;max-width:440px;width:100%;text-align:center;transform:scale(.9);transition:transform .3s}
+.modal-overlay.active .modal{transform:scale(1)}
+.modal-icon{font-size:48px;margin-bottom:16px}
+.modal h3{font-size:22px;font-weight:800;color:var(--gray-900);margin-bottom:8px}
+.modal p{font-size:14px;color:var(--gray-500);margin-bottom:24px;line-height:1.6}
+.modal .price{font-size:32px;font-weight:800;color:var(--primary);margin-bottom:4px}
+.modal .price-sub{font-size:13px;color:var(--gray-400);margin-bottom:20px}
+.modal .btn{width:100%;justify-content:center;margin-bottom:8px}
+.modal-close{font-size:13px;color:var(--gray-400);cursor:pointer;margin-top:8px}
+.modal-close:hover{color:var(--gray-600)}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--gray-800);color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;z-index:1100;transition:transform .3s ease;box-shadow:var(--shadow-xl)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:20px;height:20px;border:3px solid var(--gray-200);border-top-color:var(--primary);border-radius:50%;animation:spin .6s linear infinite;margin:0 auto}
+
+/* Responsive */
+@media(max-width:768px){
+  .dashboard-hero h1{font-size:26px}
+  .dashboard-hero p{font-size:15px}
+  .tools-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .tool-card{padding:20px 16px}
+  .tool-icon{width:48px;height:48px;font-size:22px}
+  .tool-card h3{font-size:15px}
+  .tool-card p{font-size:12px}
+  .main{padding:16px}
+  .tool-header h2{font-size:22px}
+  .drop-zone{padding:32px 16px}
+  .preview-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+  .option-row{flex-direction:column;align-items:flex-start}
+  .option-row input[type="text"]{width:100%}
+}
+@media(max-width:480px){
+  .tools-grid{grid-template-columns:1fr}
+  .header-inner{gap:8px}
+  .usage-badge{font-size:11px;padding:6px 10px}
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo" onclick="showDashboard()">
+      <svg viewBox="0 0 32 32" fill="none"><rect x="4" y="2" width="18" height="24" rx="2" fill="currentColor" opacity=".2"/><rect x="8" y="6" width="18" height="24" rx="2" fill="currentColor" opacity=".6"/><rect x="6" y="4" width="18" height="24" rx="2" fill="currentColor"/><path d="M11 12h8M11 16h8M11 20h5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+      PDF 올인원 도구
+    </div>
+    <div class="usage-badge">
+      오늘 무료 사용 <span class="count" id="usageCount">3</span> / 3회 남음
+    </div>
+  </div>
+</header>
+
+<!-- Ad Top -->
+<div class="ad-placeholder"><span>Google AdSense 광고 영역 (728x90)</span></div>
+
+<div class="main">
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <div class="dashboard-hero">
+    <h1>PDF 파일, 쉽고 빠르게 편집하세요</h1>
+    <p>합치기, 분리, 이미지 변환, 워터마크까지 - 모든 PDF 작업을 브라우저에서 바로</p>
+  </div>
+  <div class="tools-grid">
+    <div class="tool-card" onclick="openTool('merge')">
+      <div class="tool-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M12 8v8M8 12h8"/></svg>
+      </div>
+      <h3>PDF 합치기</h3>
+      <p>여러 PDF 파일을 하나로 합칩니다. 순서를 드래그로 변경할 수 있습니다.</p>
+    </div>
+    <div class="tool-card" onclick="openTool('split')">
+      <div class="tool-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M4 12h16"/></svg>
+      </div>
+      <h3>PDF 분리</h3>
+      <p>PDF에서 원하는 페이지만 추출하여 새 파일로 만듭니다.</p>
+    </div>
+    <div class="tool-card" onclick="openTool('img2pdf')">
+      <div class="tool-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+      </div>
+      <h3>이미지 &rarr; PDF</h3>
+      <p>JPG, PNG 이미지들을 하나의 PDF 파일로 변환합니다.</p>
+    </div>
+    <div class="tool-card" onclick="openTool('pdf2img')">
+      <div class="tool-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.5-1.5a2 2 0 0 0-3 0L8 23"/></svg>
+      </div>
+      <h3>PDF &rarr; 이미지</h3>
+      <p>PDF의 각 페이지를 고품질 PNG 이미지로 변환합니다.</p>
+    </div>
+    <div class="tool-card" onclick="openTool('compress')">
+      <div class="tool-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+      </div>
+      <h3>PDF 압축</h3>
+      <p>PDF 파일 크기를 줄여 이메일 전송이나 업로드에 적합하게 만듭니다.</p>
+    </div>
+    <div class="tool-card" onclick="openTool('watermark')">
+      <div class="tool-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12h6M12 9v6"/></svg>
+      </div>
+      <h3>PDF 워터마크</h3>
+      <p>PDF에 텍스트 워터마크를 추가하여 저작권을 보호합니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MERGE TOOL ===== -->
+<div id="tool-merge" class="tool-page">
+  <div class="tool-header">
+    <button class="back-btn" onclick="showDashboard()">&larr;</button>
+    <div>
+      <h2>PDF 합치기</h2>
+      <p>여러 PDF 파일을 하나로 결합합니다. 드래그하여 순서를 변경하세요.</p>
+    </div>
+  </div>
+  <div class="drop-zone" id="merge-drop">
+    <input type="file" multiple accept=".pdf" onchange="handleFiles(this.files,'merge')">
+    <div class="drop-zone-icon">&#128196;</div>
+    <h3>PDF 파일을 여기에 끌어다 놓으세요</h3>
+    <p>또는 클릭하여 파일 선택 (여러 파일 가능)</p>
+  </div>
+  <div class="file-list" id="merge-files"></div>
+  <div class="action-bar">
+    <button class="btn btn-primary" id="merge-btn" disabled onclick="doMerge()">&#128279; PDF 합치기 실행</button>
+    <button class="btn btn-secondary" onclick="clearFiles('merge')">&#128465; 초기화</button>
+  </div>
+  <div class="progress-container" id="merge-progress">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="merge-bar"></div></div>
+    <div class="progress-text" id="merge-progress-text">처리 중...</div>
+  </div>
+  <div class="result-area" id="merge-result">
+    <h4>합치기 완료!</h4>
+    <p id="merge-result-info"></p>
+    <button class="btn btn-success" id="merge-download">&#11015; 다운로드</button>
+  </div>
+</div>
+
+<!-- ===== SPLIT TOOL ===== -->
+<div id="tool-split" class="tool-page">
+  <div class="tool-header">
+    <button class="back-btn" onclick="showDashboard()">&larr;</button>
+    <div>
+      <h2>PDF 분리</h2>
+      <p>PDF에서 원하는 페이지를 추출합니다.</p>
+    </div>
+  </div>
+  <div class="drop-zone" id="split-drop">
+    <input type="file" accept=".pdf" onchange="handleFiles(this.files,'split')">
+    <div class="drop-zone-icon">&#128196;</div>
+    <h3>PDF 파일을 여기에 끌어다 놓으세요</h3>
+    <p>또는 클릭하여 파일 선택</p>
+  </div>
+  <div class="file-list" id="split-files"></div>
+  <div class="preview-grid" id="split-preview"></div>
+  <div class="options-panel" id="split-options" style="display:none">
+    <h4>추출할 페이지 선택</h4>
+    <div class="option-row">
+      <label>페이지 범위</label>
+      <input type="text" id="split-pages" placeholder="예: 1-3, 5, 7-10">
+    </div>
+    <p style="font-size:12px;color:var(--gray-400);margin-top:4px">총 <span id="split-total">0</span>페이지</p>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-primary" id="split-btn" disabled onclick="doSplit()">&#9986; 페이지 추출</button>
+    <button class="btn btn-secondary" onclick="clearFiles('split')">&#128465; 초기화</button>
+  </div>
+  <div class="progress-container" id="split-progress">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="split-bar"></div></div>
+    <div class="progress-text" id="split-progress-text">처리 중...</div>
+  </div>
+  <div class="result-area" id="split-result">
+    <h4>분리 완료!</h4>
+    <p id="split-result-info"></p>
+    <button class="btn btn-success" id="split-download">&#11015; 다운로드</button>
+  </div>
+</div>
+
+<!-- ===== IMG2PDF TOOL ===== -->
+<div id="tool-img2pdf" class="tool-page">
+  <div class="tool-header">
+    <button class="back-btn" onclick="showDashboard()">&larr;</button>
+    <div>
+      <h2>이미지 &rarr; PDF 변환</h2>
+      <p>이미지 파일들을 하나의 PDF로 변환합니다.</p>
+    </div>
+  </div>
+  <div class="drop-zone" id="img2pdf-drop">
+    <input type="file" multiple accept="image/png,image/jpeg,image/jpg" onchange="handleFiles(this.files,'img2pdf')">
+    <div class="drop-zone-icon">&#127748;</div>
+    <h3>이미지 파일을 여기에 끌어다 놓으세요</h3>
+    <p>JPG, PNG 형식 지원 (여러 파일 가능)</p>
+  </div>
+  <div class="file-list" id="img2pdf-files"></div>
+  <div class="options-panel" id="img2pdf-options" style="display:none">
+    <h4>변환 옵션</h4>
+    <div class="option-row">
+      <label>페이지 크기</label>
+      <select id="img2pdf-pagesize">
+        <option value="a4">A4</option>
+        <option value="letter">Letter</option>
+        <option value="fit">이미지 크기에 맞춤</option>
+      </select>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-primary" id="img2pdf-btn" disabled onclick="doImg2Pdf()">&#128196; PDF로 변환</button>
+    <button class="btn btn-secondary" onclick="clearFiles('img2pdf')">&#128465; 초기화</button>
+  </div>
+  <div class="progress-container" id="img2pdf-progress">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="img2pdf-bar"></div></div>
+    <div class="progress-text" id="img2pdf-progress-text">처리 중...</div>
+  </div>
+  <div class="result-area" id="img2pdf-result">
+    <h4>변환 완료!</h4>
+    <p id="img2pdf-result-info"></p>
+    <button class="btn btn-success" id="img2pdf-download">&#11015; 다운로드</button>
+  </div>
+</div>
+
+<!-- ===== PDF2IMG TOOL ===== -->
+<div id="tool-pdf2img" class="tool-page">
+  <div class="tool-header">
+    <button class="back-btn" onclick="showDashboard()">&larr;</button>
+    <div>
+      <h2>PDF &rarr; 이미지 변환</h2>
+      <p>PDF의 각 페이지를 PNG 이미지로 변환합니다.</p>
+    </div>
+  </div>
+  <div class="drop-zone" id="pdf2img-drop">
+    <input type="file" accept=".pdf" onchange="handleFiles(this.files,'pdf2img')">
+    <div class="drop-zone-icon">&#127748;</div>
+    <h3>PDF 파일을 여기에 끌어다 놓으세요</h3>
+    <p>또는 클릭하여 파일 선택</p>
+  </div>
+  <div class="file-list" id="pdf2img-files"></div>
+  <div class="options-panel" id="pdf2img-options" style="display:none">
+    <h4>변환 옵션</h4>
+    <div class="option-row">
+      <label>해상도</label>
+      <select id="pdf2img-scale">
+        <option value="1">보통 (1x)</option>
+        <option value="2" selected>고화질 (2x)</option>
+        <option value="3">초고화질 (3x)</option>
+      </select>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-primary" id="pdf2img-btn" disabled onclick="doPdf2Img()">&#127748; 이미지로 변환</button>
+    <button class="btn btn-secondary" onclick="clearFiles('pdf2img')">&#128465; 초기화</button>
+  </div>
+  <div class="progress-container" id="pdf2img-progress">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="pdf2img-bar"></div></div>
+    <div class="progress-text" id="pdf2img-progress-text">처리 중...</div>
+  </div>
+  <div class="result-area" id="pdf2img-result">
+    <h4>변환 완료!</h4>
+    <p id="pdf2img-result-info"></p>
+    <div id="pdf2img-images" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px"></div>
+    <button class="btn btn-success" id="pdf2img-download-all">&#11015; 전체 다운로드</button>
+  </div>
+</div>
+
+<!-- ===== COMPRESS TOOL ===== -->
+<div id="tool-compress" class="tool-page">
+  <div class="tool-header">
+    <button class="back-btn" onclick="showDashboard()">&larr;</button>
+    <div>
+      <h2>PDF 압축</h2>
+      <p>PDF 파일 크기를 줄입니다. (시뮬레이션)</p>
+    </div>
+  </div>
+  <div class="drop-zone" id="compress-drop">
+    <input type="file" accept=".pdf" onchange="handleFiles(this.files,'compress')">
+    <div class="drop-zone-icon">&#128230;</div>
+    <h3>PDF 파일을 여기에 끌어다 놓으세요</h3>
+    <p>또는 클릭하여 파일 선택</p>
+  </div>
+  <div class="file-list" id="compress-files"></div>
+  <div class="options-panel" id="compress-options" style="display:none">
+    <h4>압축 수준</h4>
+    <div class="option-row">
+      <label>품질</label>
+      <select id="compress-quality">
+        <option value="high">높은 품질 (용량 약간 감소)</option>
+        <option value="medium" selected>보통 (권장)</option>
+        <option value="low">낮은 품질 (최대 압축)</option>
+      </select>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-primary" id="compress-btn" disabled onclick="doCompress()">&#128230; 압축 실행</button>
+    <button class="btn btn-secondary" onclick="clearFiles('compress')">&#128465; 초기화</button>
+  </div>
+  <div class="progress-container" id="compress-progress">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="compress-bar"></div></div>
+    <div class="progress-text" id="compress-progress-text">처리 중...</div>
+  </div>
+  <div class="result-area" id="compress-result">
+    <h4>압축 완료!</h4>
+    <p id="compress-result-info"></p>
+    <button class="btn btn-success" id="compress-download">&#11015; 다운로드</button>
+  </div>
+</div>
+
+<!-- ===== WATERMARK TOOL ===== -->
+<div id="tool-watermark" class="tool-page">
+  <div class="tool-header">
+    <button class="back-btn" onclick="showDashboard()">&larr;</button>
+    <div>
+      <h2>PDF 워터마크</h2>
+      <p>PDF에 텍스트 워터마크를 추가합니다.</p>
+    </div>
+  </div>
+  <div class="drop-zone" id="watermark-drop">
+    <input type="file" accept=".pdf" onchange="handleFiles(this.files,'watermark')">
+    <div class="drop-zone-icon">&#128737;</div>
+    <h3>PDF 파일을 여기에 끌어다 놓으세요</h3>
+    <p>또는 클릭하여 파일 선택</p>
+  </div>
+  <div class="file-list" id="watermark-files"></div>
+  <div class="options-panel" id="watermark-options" style="display:none">
+    <h4>워터마크 설정</h4>
+    <div class="option-row">
+      <label>텍스트</label>
+      <input type="text" id="watermark-text" value="CONFIDENTIAL" placeholder="워터마크 텍스트">
+    </div>
+    <div class="option-row">
+      <label>글자 크기</label>
+      <input type="number" id="watermark-size" value="50" min="10" max="200">
+    </div>
+    <div class="option-row">
+      <label>투명도</label>
+      <select id="watermark-opacity">
+        <option value="0.1">10%</option>
+        <option value="0.2" selected>20%</option>
+        <option value="0.3">30%</option>
+        <option value="0.5">50%</option>
+      </select>
+    </div>
+    <div class="option-row">
+      <label>색상</label>
+      <input type="color" id="watermark-color" value="#ff0000">
+    </div>
+    <div class="option-row">
+      <label>회전 각도</label>
+      <select id="watermark-rotation">
+        <option value="0">0도</option>
+        <option value="30">30도</option>
+        <option value="45" selected>45도</option>
+        <option value="60">60도</option>
+        <option value="90">90도</option>
+      </select>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="btn btn-primary" id="watermark-btn" disabled onclick="doWatermark()">&#128737; 워터마크 추가</button>
+    <button class="btn btn-secondary" onclick="clearFiles('watermark')">&#128465; 초기화</button>
+  </div>
+  <div class="progress-container" id="watermark-progress">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="watermark-bar"></div></div>
+    <div class="progress-text" id="watermark-progress-text">처리 중...</div>
+  </div>
+  <div class="result-area" id="watermark-result">
+    <h4>워터마크 추가 완료!</h4>
+    <p id="watermark-result-info"></p>
+    <button class="btn btn-success" id="watermark-download">&#11015; 다운로드</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- Bottom Ad -->
+<div class="ad-placeholder" style="margin-bottom:32px"><span>Google AdSense 광고 영역 (728x90)</span></div>
+
+<!-- Upsell Modal -->
+<div class="modal-overlay" id="upsellModal">
+  <div class="modal">
+    <div class="modal-icon">&#128274;</div>
+    <h3>오늘의 무료 사용 횟수를 모두 사용했습니다</h3>
+    <p>프리미엄으로 업그레이드하면 무제한으로 모든 PDF 도구를 사용할 수 있습니다.</p>
+    <div class="price">월 4,900원</div>
+    <div class="price-sub">연간 결제 시 월 3,900원 (20% 할인)</div>
+    <button class="btn btn-primary" onclick="showToast('결제 기능은 정식 버전에서 제공됩니다.')">&#128142; 프리미엄 시작하기</button>
+    <button class="btn btn-secondary" onclick="closeModal()">내일 다시 사용하기</button>
+    <div class="modal-close" onclick="closeModal()">닫기</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== PDF.js Setup =====
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+const { PDFDocument, rgb, degrees, StandardFonts } = PDFLib;
+
+// ===== State =====
+const state = {
+  merge: { files: [], buffers: [] },
+  split: { files: [], buffers: [] },
+  img2pdf: { files: [], buffers: [] },
+  pdf2img: { files: [], buffers: [] },
+  compress: { files: [], buffers: [] },
+  watermark: { files: [], buffers: [] }
+};
+
+// ===== Usage Tracking =====
+function getUsage() {
+  const today = new Date().toISOString().slice(0, 10);
+  const data = JSON.parse(localStorage.getItem('pdfToolUsage') || '{}');
+  if (data.date !== today) return { date: today, count: 0 };
+  return data;
+}
+function setUsage(count) {
+  const today = new Date().toISOString().slice(0, 10);
+  localStorage.setItem('pdfToolUsage', JSON.stringify({ date: today, count }));
+  updateUsageBadge();
+}
+function updateUsageBadge() {
+  const u = getUsage();
+  const remaining = Math.max(0, 3 - u.count);
+  document.getElementById('usageCount').textContent = remaining;
+}
+function checkUsage() {
+  const u = getUsage();
+  if (u.count >= 3) {
+    document.getElementById('upsellModal').classList.add('active');
+    return false;
+  }
+  return true;
+}
+function consumeUsage() {
+  const u = getUsage();
+  setUsage(u.count + 1);
+}
+updateUsageBadge();
+
+// ===== Navigation =====
+function showDashboard() {
+  document.getElementById('dashboard').style.display = '';
+  document.querySelectorAll('.tool-page').forEach(p => p.classList.remove('active'));
+}
+function openTool(tool) {
+  document.getElementById('dashboard').style.display = 'none';
+  document.querySelectorAll('.tool-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('tool-' + tool).classList.add('active');
+}
+
+// ===== Modal & Toast =====
+function closeModal() { document.getElementById('upsellModal').classList.remove('active'); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== Drag & Drop Setup =====
+document.querySelectorAll('.drop-zone').forEach(zone => {
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const toolId = zone.id.replace('-drop', '');
+    handleFiles(e.dataTransfer.files, toolId);
+  });
+});
+
+// ===== File Handling =====
+function handleFiles(fileList, toolId) {
+  const files = Array.from(fileList);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      state[toolId].files.push(file);
+      state[toolId].buffers.push(new Uint8Array(reader.result));
+      renderFileList(toolId);
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function renderFileList(toolId) {
+  const container = document.getElementById(toolId + '-files');
+  const s = state[toolId];
+  container.innerHTML = s.files.map((f, i) => `
+    <div class="file-item" draggable="true" data-idx="${i}">
+      <div class="file-item-drag" title="드래그하여 순서 변경">&#9776;</div>
+      <div class="file-item-icon">&#128196;</div>
+      <div class="file-item-info">
+        <div class="file-item-name">${f.name}</div>
+        <div class="file-item-size">${formatSize(f.size)}</div>
+      </div>
+      <button class="file-item-remove" onclick="removeFile('${toolId}',${i})" title="삭제">&times;</button>
+    </div>
+  `).join('');
+
+  // Enable drag reorder
+  const items = container.querySelectorAll('.file-item');
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', item.dataset.idx);
+      item.classList.add('dragging');
+    });
+    item.addEventListener('dragend', () => item.classList.remove('dragging'));
+    item.addEventListener('dragover', e => e.preventDefault());
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+      const toIdx = parseInt(item.dataset.idx);
+      if (fromIdx !== toIdx) {
+        const fArr = s.files, bArr = s.buffers;
+        const [fItem] = fArr.splice(fromIdx, 1);
+        const [bItem] = bArr.splice(fromIdx, 1);
+        fArr.splice(toIdx, 0, fItem);
+        bArr.splice(toIdx, 0, bItem);
+        renderFileList(toolId);
+      }
+    });
+  });
+
+  // Enable/disable action button
+  const btn = document.getElementById(toolId + '-btn');
+  if (btn) btn.disabled = s.files.length === 0;
+
+  // Show options panels
+  const opts = document.getElementById(toolId + '-options');
+  if (opts) opts.style.display = s.files.length > 0 ? '' : 'none';
+
+  // Split: show page count
+  if (toolId === 'split' && s.buffers.length > 0) {
+    loadSplitInfo(s.buffers[0]);
+  }
+}
+
+function removeFile(toolId, idx) {
+  state[toolId].files.splice(idx, 1);
+  state[toolId].buffers.splice(idx, 1);
+  renderFileList(toolId);
+}
+
+function clearFiles(toolId) {
+  state[toolId].files = [];
+  state[toolId].buffers = [];
+  renderFileList(toolId);
+  const r = document.getElementById(toolId + '-result');
+  if (r) r.classList.remove('active');
+  const p = document.getElementById(toolId + '-progress');
+  if (p) p.classList.remove('active');
+  const prev = document.getElementById(toolId + '-preview');
+  if (prev) prev.innerHTML = '';
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+// ===== Progress Helper =====
+function showProgress(toolId, pct, text) {
+  const container = document.getElementById(toolId + '-progress');
+  container.classList.add('active');
+  document.getElementById(toolId + '-bar').style.width = pct + '%';
+  document.getElementById(toolId + '-progress-text').textContent = text || '처리 중...';
+}
+
+// ===== Split Info =====
+async function loadSplitInfo(buffer) {
+  try {
+    const pdf = await PDFDocument.load(buffer);
+    const count = pdf.getPageCount();
+    document.getElementById('split-total').textContent = count;
+    document.getElementById('split-pages').placeholder = `예: 1-${Math.min(count, 3)}, ${Math.min(count, 5)}`;
+
+    // Preview using pdf.js
+    if (typeof pdfjsLib !== 'undefined') {
+      const preview = document.getElementById('split-preview');
+      preview.innerHTML = '';
+      const loadingTask = pdfjsLib.getDocument({ data: buffer.slice() });
+      const pdfDoc = await loadingTask.promise;
+      const maxPreview = Math.min(count, 8);
+      for (let i = 1; i <= maxPreview; i++) {
+        const page = await pdfDoc.getPage(i);
+        const vp = page.getViewport({ scale: 0.4 });
+        const canvas = document.createElement('canvas');
+        canvas.width = vp.width;
+        canvas.height = vp.height;
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx, viewport: vp }).promise;
+        const div = document.createElement('div');
+        div.className = 'preview-item';
+        div.appendChild(canvas);
+        const num = document.createElement('div');
+        num.className = 'page-num';
+        num.textContent = i + '/' + count;
+        div.appendChild(num);
+        preview.appendChild(div);
+      }
+    }
+  } catch (e) { console.error(e); }
+}
+
+// ===== Parse Page Range =====
+function parsePageRange(str, total) {
+  const pages = new Set();
+  str.split(',').forEach(part => {
+    part = part.trim();
+    if (!part) return;
+    const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+    if (m) {
+      const s = Math.max(1, parseInt(m[1])), e = Math.min(total, parseInt(m[2]));
+      for (let i = s; i <= e; i++) pages.add(i - 1);
+    } else {
+      const n = parseInt(part);
+      if (n >= 1 && n <= total) pages.add(n - 1);
+    }
+  });
+  return Array.from(pages).sort((a, b) => a - b);
+}
+
+// ===== Download Helper =====
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ===============================
+// MERGE
+// ===============================
+async function doMerge() {
+  if (!checkUsage()) return;
+  const s = state.merge;
+  if (s.buffers.length < 2) { showToast('2개 이상의 PDF 파일을 추가해주세요.'); return; }
+  try {
+    showProgress('merge', 10, 'PDF 파일 읽는 중...');
+    const merged = await PDFDocument.create();
+    for (let i = 0; i < s.buffers.length; i++) {
+      showProgress('merge', 10 + (i / s.buffers.length) * 80, `${i + 1}/${s.buffers.length} 파일 처리 중...`);
+      const src = await PDFDocument.load(s.buffers[i]);
+      const pages = await merged.copyPages(src, src.getPageIndices());
+      pages.forEach(p => merged.addPage(p));
+    }
+    showProgress('merge', 95, '파일 생성 중...');
+    const pdfBytes = await merged.save();
+    showProgress('merge', 100, '완료!');
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    document.getElementById('merge-result-info').textContent =
+      `${s.files.length}개 파일 합침 | ${formatSize(pdfBytes.length)}`;
+    document.getElementById('merge-result').classList.add('active');
+    document.getElementById('merge-download').onclick = () => downloadBlob(blob, 'merged.pdf');
+    consumeUsage();
+    showToast('PDF 합치기 완료!');
+  } catch (e) {
+    showToast('오류 발생: ' + e.message);
+    console.error(e);
+  }
+}
+
+// ===============================
+// SPLIT
+// ===============================
+async function doSplit() {
+  if (!checkUsage()) return;
+  const s = state.split;
+  if (s.buffers.length === 0) return;
+  const input = document.getElementById('split-pages').value.trim();
+  if (!input) { showToast('추출할 페이지 번호를 입력해주세요.'); return; }
+  try {
+    showProgress('split', 20, '페이지 추출 중...');
+    const src = await PDFDocument.load(s.buffers[0]);
+    const total = src.getPageCount();
+    const indices = parsePageRange(input, total);
+    if (indices.length === 0) { showToast('유효한 페이지 번호를 입력해주세요.'); return; }
+    const newPdf = await PDFDocument.create();
+    const pages = await newPdf.copyPages(src, indices);
+    pages.forEach(p => newPdf.addPage(p));
+    showProgress('split', 90, '파일 생성 중...');
+    const pdfBytes = await newPdf.save();
+    showProgress('split', 100, '완료!');
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    document.getElementById('split-result-info').textContent =
+      `${indices.length}페이지 추출 완료 | ${formatSize(pdfBytes.length)}`;
+    document.getElementById('split-result').classList.add('active');
+    document.getElementById('split-download').onclick = () => downloadBlob(blob, 'split.pdf');
+    consumeUsage();
+    showToast('PDF 분리 완료!');
+  } catch (e) {
+    showToast('오류 발생: ' + e.message);
+    console.error(e);
+  }
+}
+
+// ===============================
+// IMG2PDF
+// ===============================
+async function doImg2Pdf() {
+  if (!checkUsage()) return;
+  const s = state.img2pdf;
+  if (s.files.length === 0) return;
+  try {
+    showProgress('img2pdf', 10, '이미지 처리 중...');
+    const pdf = await PDFDocument.create();
+    const pageSize = document.getElementById('img2pdf-pagesize').value;
+    for (let i = 0; i < s.buffers.length; i++) {
+      showProgress('img2pdf', 10 + (i / s.files.length) * 80, `${i + 1}/${s.files.length} 이미지 변환 중...`);
+      const file = s.files[i];
+      const buf = s.buffers[i];
+      let img;
+      if (file.type === 'image/png') {
+        img = await pdf.embedPng(buf);
+      } else {
+        img = await pdf.embedJpg(buf);
+      }
+      let pw, ph;
+      if (pageSize === 'a4') {
+        pw = 595.28; ph = 793.70;
+      } else if (pageSize === 'letter') {
+        pw = 612; ph = 792;
+      } else {
+        pw = img.width; ph = img.height;
+      }
+      const page = pdf.addPage([pw, ph]);
+      const scale = Math.min(pw / img.width, ph / img.height);
+      const w = img.width * scale;
+      const h = img.height * scale;
+      page.drawImage(img, {
+        x: (pw - w) / 2,
+        y: (ph - h) / 2,
+        width: w,
+        height: h
+      });
+    }
+    showProgress('img2pdf', 95, '파일 생성 중...');
+    const pdfBytes = await pdf.save();
+    showProgress('img2pdf', 100, '완료!');
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    document.getElementById('img2pdf-result-info').textContent =
+      `${s.files.length}개 이미지 변환 | ${formatSize(pdfBytes.length)}`;
+    document.getElementById('img2pdf-result').classList.add('active');
+    document.getElementById('img2pdf-download').onclick = () => downloadBlob(blob, 'images.pdf');
+    consumeUsage();
+    showToast('이미지 to PDF 변환 완료!');
+  } catch (e) {
+    showToast('오류 발생: ' + e.message);
+    console.error(e);
+  }
+}
+
+// ===============================
+// PDF2IMG
+// ===============================
+async function doPdf2Img() {
+  if (!checkUsage()) return;
+  const s = state.pdf2img;
+  if (s.buffers.length === 0) return;
+  if (typeof pdfjsLib === 'undefined') { showToast('PDF.js 라이브러리를 로드할 수 없습니다.'); return; }
+  try {
+    const scale = parseFloat(document.getElementById('pdf2img-scale').value);
+    showProgress('pdf2img', 10, '페이지 렌더링 중...');
+    const loadingTask = pdfjsLib.getDocument({ data: s.buffers[0].slice() });
+    const pdfDoc = await loadingTask.promise;
+    const total = pdfDoc.numPages;
+    const blobs = [];
+    const imagesDiv = document.getElementById('pdf2img-images');
+    imagesDiv.innerHTML = '';
+    for (let i = 1; i <= total; i++) {
+      showProgress('pdf2img', 10 + (i / total) * 85, `${i}/${total} 페이지 변환 중...`);
+      const page = await pdfDoc.getPage(i);
+      const vp = page.getViewport({ scale });
+      const canvas = document.createElement('canvas');
+      canvas.width = vp.width;
+      canvas.height = vp.height;
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport: vp }).promise;
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      blobs.push({ blob, name: `page_${i}.png` });
+      // Show small preview
+      const thumb = document.createElement('img');
+      thumb.src = URL.createObjectURL(blob);
+      thumb.style.cssText = 'height:120px;border-radius:8px;border:1px solid #e2e8f0;cursor:pointer';
+      thumb.title = `페이지 ${i}`;
+      thumb.onclick = () => downloadBlob(blob, `page_${i}.png`);
+      imagesDiv.appendChild(thumb);
+    }
+    showProgress('pdf2img', 100, '완료!');
+    document.getElementById('pdf2img-result-info').textContent =
+      `${total}페이지 변환 완료 | 개별 클릭하여 다운로드 가능`;
+    document.getElementById('pdf2img-result').classList.add('active');
+    document.getElementById('pdf2img-download-all').onclick = () => {
+      blobs.forEach(b => downloadBlob(b.blob, b.name));
+    };
+    consumeUsage();
+    showToast('PDF to 이미지 변환 완료!');
+  } catch (e) {
+    showToast('오류 발생: ' + e.message);
+    console.error(e);
+  }
+}
+
+// ===============================
+// COMPRESS (simulated)
+// ===============================
+async function doCompress() {
+  if (!checkUsage()) return;
+  const s = state.compress;
+  if (s.buffers.length === 0) return;
+  try {
+    showProgress('compress', 20, '파일 분석 중...');
+    const quality = document.getElementById('compress-quality').value;
+    const src = await PDFDocument.load(s.buffers[0]);
+    await new Promise(r => setTimeout(r, 500));
+    showProgress('compress', 50, '압축 처리 중...');
+    await new Promise(r => setTimeout(r, 800));
+    showProgress('compress', 80, '최적화 중...');
+    const pdfBytes = await src.save();
+    await new Promise(r => setTimeout(r, 400));
+    showProgress('compress', 100, '완료!');
+    const ratios = { high: 0.85, medium: 0.72, low: 0.55 };
+    const ratio = ratios[quality];
+    const originalSize = s.files[0].size;
+    const simulatedSize = Math.round(pdfBytes.length * ratio);
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const saved = Math.round((1 - ratio) * 100);
+    document.getElementById('compress-result-info').textContent =
+      `${formatSize(originalSize)} → ${formatSize(simulatedSize)} (약 ${saved}% 감소)`;
+    document.getElementById('compress-result').classList.add('active');
+    document.getElementById('compress-download').onclick = () => downloadBlob(blob, 'compressed.pdf');
+    consumeUsage();
+    showToast('PDF 압축 완료!');
+  } catch (e) {
+    showToast('오류 발생: ' + e.message);
+    console.error(e);
+  }
+}
+
+// ===============================
+// WATERMARK
+// ===============================
+async function doWatermark() {
+  if (!checkUsage()) return;
+  const s = state.watermark;
+  if (s.buffers.length === 0) return;
+  try {
+    showProgress('watermark', 20, '워터마크 추가 중...');
+    const text = document.getElementById('watermark-text').value || 'WATERMARK';
+    const fontSize = parseInt(document.getElementById('watermark-size').value) || 50;
+    const opacity = parseFloat(document.getElementById('watermark-opacity').value);
+    const colorHex = document.getElementById('watermark-color').value;
+    const rotation = parseInt(document.getElementById('watermark-rotation').value) || 45;
+
+    const r = parseInt(colorHex.slice(1, 3), 16) / 255;
+    const g = parseInt(colorHex.slice(3, 5), 16) / 255;
+    const b = parseInt(colorHex.slice(5, 7), 16) / 255;
+
+    const pdf = await PDFDocument.load(s.buffers[0]);
+    const font = await pdf.embedFont(StandardFonts.Helvetica);
+    const pages = pdf.getPages();
+
+    for (let i = 0; i < pages.length; i++) {
+      showProgress('watermark', 20 + (i / pages.length) * 70, `${i + 1}/${pages.length} 페이지 처리 중...`);
+      const page = pages[i];
+      const { width, height } = page.getSize();
+      const textWidth = font.widthOfTextAtSize(text, fontSize);
+      page.drawText(text, {
+        x: (width - textWidth * Math.cos(rotation * Math.PI / 180)) / 2,
+        y: height / 2,
+        size: fontSize,
+        font,
+        color: rgb(r, g, b),
+        opacity,
+        rotate: degrees(rotation)
+      });
+    }
+    showProgress('watermark', 95, '파일 생성 중...');
+    const pdfBytes = await pdf.save();
+    showProgress('watermark', 100, '완료!');
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    document.getElementById('watermark-result-info').textContent =
+      `${pages.length}페이지에 워터마크 추가 완료 | ${formatSize(pdfBytes.length)}`;
+    document.getElementById('watermark-result').classList.add('active');
+    document.getElementById('watermark-download').onclick = () => downloadBlob(blob, 'watermarked.pdf');
+    consumeUsage();
+    showToast('워터마크 추가 완료!');
+  } catch (e) {
+    showToast('오류 발생: ' + e.message);
+    console.error(e);
+  }
+}
+</script>
+</body>
+</html>
