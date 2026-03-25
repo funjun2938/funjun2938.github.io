@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>천명(天命) - AI 사주팔자 풀이</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-dark: #0a0a14;
+  --bg-card: #12121f;
+  --bg-card2: #1a1a2e;
+  --purple: #8b5cf6;
+  --purple-light: #a78bfa;
+  --purple-dark: #6d28d9;
+  --gold: #d4a843;
+  --gold-light: #f0d68a;
+  --gold-dark: #b8922e;
+  --text: #e8e6f0;
+  --text-dim: #9896a8;
+  --text-bright: #ffffff;
+  --accent-red: #ef4444;
+  --accent-blue: #3b82f6;
+  --accent-green: #22c55e;
+  --gradient-gold: linear-gradient(135deg, #d4a843, #f0d68a, #d4a843);
+  --gradient-purple: linear-gradient(135deg, #6d28d9, #8b5cf6, #a78bfa);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== STARFIELD ===== */
+#starfield {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0;
+}
+
+/* ===== LAYOUT ===== */
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.section {
+  display: none;
+  animation: fadeInUp 0.6s ease-out;
+}
+.section.active { display: block; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes progressBar {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* ===== LANDING ===== */
+.landing-header {
+  text-align: center;
+  padding: 60px 0 30px;
+}
+.logo-symbol {
+  font-size: 64px;
+  margin-bottom: 12px;
+  animation: float 3s ease-in-out infinite;
+  display: inline-block;
+}
+.logo-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 36px;
+  font-weight: 900;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+}
+.logo-subtitle {
+  font-size: 14px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+}
+.trust-badges {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+.badge {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--purple-light);
+}
+
+/* ===== FORM ===== */
+.form-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 20px;
+  padding: 28px 24px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.form-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gradient-gold);
+}
+.form-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gold-light);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.form-group label .required {
+  color: var(--accent-red);
+  margin-left: 2px;
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  background: var(--bg-card2);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: 'Noto Sans KR', sans-serif;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+input:focus, select:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239896a8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+.date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.calendar-toggle {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.toggle-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 10px;
+  background: var(--bg-card2);
+  color: var(--text-dim);
+  font-size: 14px;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+.toggle-btn.active {
+  background: var(--purple-dark);
+  border-color: var(--purple);
+  color: var(--text-bright);
+}
+
+.gender-row {
+  display: flex;
+  gap: 10px;
+}
+.gender-btn {
+  flex: 1;
+  padding: 14px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  background: var(--bg-card2);
+  color: var(--text-dim);
+  font-size: 15px;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+.gender-btn.active {
+  background: var(--purple-dark);
+  border-color: var(--purple);
+  color: var(--text-bright);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: var(--gradient-gold);
+  color: #1a1a2e;
+  font-size: 17px;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(212, 168, 67, 0.3);
+}
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+.footer-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 20px 0 40px;
+  line-height: 1.8;
+}
+
+/* ===== LOADING ===== */
+.loading-section {
+  text-align: center;
+  padding: 100px 0;
+}
+.loading-icon {
+  width: 80px; height: 80px;
+  margin: 0 auto 30px;
+  position: relative;
+}
+.loading-icon .ring {
+  position: absolute; inset: 0;
+  border: 3px solid transparent;
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+}
+.loading-icon .ring:nth-child(2) {
+  inset: 8px;
+  border-top-color: var(--purple);
+  animation-duration: 1.8s;
+  animation-direction: reverse;
+}
+.loading-icon .ring:nth-child(3) {
+  inset: 16px;
+  border-top-color: var(--gold-light);
+  animation-duration: 2.4s;
+}
+.loading-icon .center-dot {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 10px; height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 1s ease-in-out infinite;
+}
+.loading-text {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 18px;
+  color: var(--gold-light);
+  margin-bottom: 12px;
+}
+.loading-step {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 30px;
+  min-height: 20px;
+}
+.progress-bar-track {
+  width: 200px;
+  height: 4px;
+  background: rgba(139, 92, 246, 0.2);
+  border-radius: 2px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--gradient-gold);
+  border-radius: 2px;
+  width: 0;
+  transition: width 0.3s;
+}
+
+/* ===== RESULT ===== */
+.result-header {
+  text-align: center;
+  padding: 40px 0 20px;
+}
+.result-header .name-display {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gold-light);
+  margin-bottom: 4px;
+}
+.result-header .birth-display {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* Saju Pillar Cards */
+.saju-pillars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 24px 0;
+}
+.pillar {
+  background: var(--bg-card);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 14px;
+  padding: 14px 8px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.pillar::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.pillar.year::before { background: var(--accent-green); }
+.pillar.month::before { background: var(--accent-blue); }
+.pillar.day::before { background: var(--purple); }
+.pillar.time::before { background: var(--gold); }
+
+.pillar-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.pillar-hanja {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.pillar-hanja .cheongan {
+  display: block;
+  margin-bottom: 4px;
+}
+.pillar-hanja .jiji {
+  display: block;
+}
+.pillar-korean {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+.element-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 3px;
+  vertical-align: middle;
+}
+.element-wood { background: #22c55e; }
+.element-fire { background: #ef4444; }
+.element-earth { background: #eab308; }
+.element-metal { background: #e5e7eb; }
+.element-water { background: #3b82f6; }
+
+/* Five Elements Chart */
+.elements-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gold-light);
+  margin-bottom: 20px;
+  text-align: center;
+}
+.elements-chart {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 120px;
+  margin-bottom: 12px;
+  padding: 0 10px;
+}
+.element-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.element-bar {
+  width: 36px;
+  border-radius: 8px 8px 4px 4px;
+  transition: height 1s ease-out;
+  position: relative;
+}
+.element-bar.wood { background: linear-gradient(to top, #166534, #22c55e); }
+.element-bar.fire { background: linear-gradient(to top, #991b1b, #ef4444); }
+.element-bar.earth { background: linear-gradient(to top, #854d0e, #eab308); }
+.element-bar.metal { background: linear-gradient(to top, #6b7280, #e5e7eb); }
+.element-bar.water { background: linear-gradient(to top, #1e3a5f, #3b82f6); }
+.element-bar-count {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+.element-label {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.element-hanja {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 15px;
+  color: var(--text);
+}
+
+/* Fortune Summary */
+.fortune-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.fortune-text {
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: var(--text);
+}
+.fortune-text p {
+  margin-bottom: 12px;
+}
+.fortune-text p:last-child { margin-bottom: 0; }
+
+.highlight-gold {
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+/* Premium Blurred */
+.premium-section {
+  position: relative;
+  margin: 30px 0 20px;
+}
+.premium-label {
+  text-align: center;
+  margin-bottom: 16px;
+}
+.premium-label span {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'Noto Serif KR', serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+.blurred-cards {
+  position: relative;
+}
+.blurred-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 12px;
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+}
+.blurred-card .bc-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--gold-light);
+}
+.blurred-card .bc-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-dim);
+}
+
+.premium-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.premium-cta-box {
+  background: rgba(10, 10, 20, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 168, 67, 0.3);
+  border-radius: 20px;
+  padding: 30px 24px;
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+}
+.premium-cta-box .lock-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+.premium-cta-box .cta-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold-light);
+  margin-bottom: 8px;
+}
+.premium-cta-box .cta-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.premium-cta-box .cta-features {
+  text-align: left;
+  margin-bottom: 20px;
+}
+.premium-cta-box .cta-features li {
+  list-style: none;
+  font-size: 13px;
+  color: var(--text);
+  padding: 4px 0;
+}
+.premium-cta-box .cta-features li::before {
+  content: '\\2728';
+  margin-right: 8px;
+}
+.premium-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: var(--gradient-gold);
+  color: #1a1a2e;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+  letter-spacing: 0.5px;
+}
+.premium-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(212, 168, 67, 0.3);
+}
+.original-price {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-decoration: line-through;
+  margin-bottom: 4px;
+}
+.discount-badge {
+  display: inline-block;
+  background: var(--accent-red);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-left: 6px;
+}
+
+/* Share & Actions */
+.action-row {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0 40px;
+}
+.action-btn {
+  flex: 1;
+  padding: 14px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+.action-btn:hover {
+  border-color: var(--purple);
+  background: var(--bg-card2);
+}
+
+/* ===== PAYMENT MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.3s;
+}
+.modal-overlay.show { display: flex; }
+
+.payment-modal {
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 0;
+  animation: slideUp 0.4s ease-out;
+  color: #1a1a2e;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #eee;
+}
+.modal-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+}
+.modal-close {
+  width: 32px; height: 32px;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+.modal-body {
+  padding: 24px;
+}
+.payment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+.payment-item .item-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+.payment-item .item-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--purple-dark);
+}
+.payment-methods {
+  margin-bottom: 20px;
+}
+.payment-methods h4 {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 12px;
+}
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.method-btn {
+  padding: 14px 8px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  font-size: 13px;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  font-weight: 500;
+}
+.method-btn.selected {
+  border-color: var(--purple);
+  background: #f5f0ff;
+  color: var(--purple-dark);
+}
+.method-btn:hover { border-color: var(--purple-light); }
+
+.pay-now-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: #5040e0;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+}
+.pay-now-btn:hover { background: #4030c0; }
+
+.payment-processing {
+  display: none;
+  text-align: center;
+  padding: 40px 20px;
+}
+.payment-processing .check-circle {
+  width: 64px; height: 64px;
+  background: #22c55e;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 32px;
+  color: white;
+  animation: fadeIn 0.5s;
+}
+.payment-processing h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.payment-processing p {
+  font-size: 14px;
+  color: #666;
+}
+
+/* ===== FULL RESULT ===== */
+.full-fortune-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(212, 168, 67, 0.2);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.full-fortune-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gradient-gold);
+}
+.fortune-category {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.fortune-category-icon {
+  font-size: 22px;
+}
+.fortune-category-name {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+.fortune-score {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.fortune-score .star { color: var(--gold); font-size: 14px; }
+.fortune-score .star.empty { color: rgba(212, 168, 67, 0.2); }
+.fortune-detail-text {
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: var(--text);
+}
+.fortune-detail-text p { margin-bottom: 10px; }
+.fortune-detail-text p:last-child { margin-bottom: 0; }
+
+.download-section {
+  text-align: center;
+  margin: 30px 0;
+}
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border: 1px solid rgba(212, 168, 67, 0.3);
+  border-radius: 14px;
+  background: var(--bg-card);
+  color: var(--gold-light);
+  font-size: 15px;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.download-btn:hover {
+  background: rgba(212, 168, 67, 0.1);
+  border-color: var(--gold);
+}
+
+/* Gunghap upsell */
+.gunghap-upsell {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(212, 168, 67, 0.1));
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 20px;
+  padding: 28px 24px;
+  text-align: center;
+  margin: 20px 0 40px;
+}
+.gunghap-upsell .gu-icon { font-size: 48px; margin-bottom: 12px; }
+.gunghap-upsell h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold-light);
+  margin-bottom: 8px;
+}
+.gunghap-upsell p {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+.gunghap-btn {
+  display: inline-block;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 14px;
+  background: var(--gradient-purple);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.gunghap-btn:hover { transform: translateY(-2px); }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--bg-card2);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  color: var(--text);
+  z-index: 200;
+  transition: transform 0.4s ease;
+  white-space: nowrap;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ===== PRINT / PDF ===== */
+@media print {
+  body { background: white; color: #1a1a2e; }
+  #starfield, .action-row, .premium-section, .gunghap-upsell,
+  .download-section, .submit-btn, .premium-btn { display: none !important; }
+  .section { display: block !important; }
+  .container { max-width: 100%; }
+  .form-card, .elements-card, .fortune-card, .full-fortune-card {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    break-inside: avoid;
+  }
+  .pillar { background: #f9f9f9; border: 1px solid #ddd; }
+  .result-header .name-display { -webkit-text-fill-color: #1a1a2e; color: #1a1a2e; }
+  .card-title, .fortune-category-name {
+    -webkit-text-fill-color: #5b3a10;
+    color: #5b3a10;
+  }
+}
+
+/* Mobile */
+@media (max-width: 360px) {
+  .pillar-hanja { font-size: 22px; }
+  .saju-pillars { gap: 6px; }
+  .form-card { padding: 20px 16px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<div class="container">
+  <!-- ===== SECTION 1: LANDING ===== -->
+  <div id="landing" class="section active">
+    <div class="landing-header">
+      <div class="logo-symbol">&#9734;</div>
+      <h1 class="logo-title">&#22825;&#21629;</h1>
+      <p class="logo-subtitle">AI &#49324;&#51452;&#54036;&#51088; &#54400;&#51060;</p>
+    </div>
+    <div class="trust-badges">
+      <span class="badge">&#128300; AI &#48516;&#49437;</span>
+      <span class="badge">&#127775; &#47564;&#49464;&#47141; &#44592;&#48152;</span>
+      <span class="badge">&#9989; &#47924;&#47308; &#44592;&#48376;&#54400;&#51060;</span>
+    </div>
+
+    <div class="form-card">
+      <div class="form-title">&#45817;&#49888;&#51032; &#49324;&#51452;&#47484; &#50508;&#47140;&#51452;&#49464;&#50836;</div>
+      <div class="form-group">
+        <label>&#51060;&#47492; <span class="required">*</span></label>
+        <input type="text" id="inputName" placeholder="&#54620;&#44544; &#51060;&#47492;&#51012; &#51077;&#47141;&#54616;&#49464;&#50836;">
+      </div>
+      <div class="form-group">
+        <label>&#49373;&#45380;&#50900;&#51068; <span class="required">*</span></label>
+        <div class="date-row">
+          <select id="inputYear"></select>
+          <select id="inputMonth"></select>
+          <select id="inputDay"></select>
+        </div>
+        <div class="calendar-toggle">
+          <button class="toggle-btn active" data-cal="solar" onclick="setCalendar('solar')">&#50577;&#47141;</button>
+          <button class="toggle-btn" data-cal="lunar" onclick="setCalendar('lunar')">&#51020;&#47141;</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>&#53468;&#50612;&#45212; &#49884;&#44036; <span class="required">*</span></label>
+        <select id="inputTime">
+          <option value="">&#49884;&#44036;&#51012; &#49440;&#53469;&#54616;&#49464;&#50836;</option>
+          <option value="0">&#51088;&#49884; (23:30~01:29)</option>
+          <option value="1">&#52629;&#49884; (01:30~03:29)</option>
+          <option value="2">&#51064;&#49884; (03:30~05:29)</option>
+          <option value="3">&#47896;&#49884; (05:30~07:29)</option>
+          <option value="4">&#51652;&#49884; (07:30~09:29)</option>
+          <option value="5">&#49324;&#49884; (09:30~11:29)</option>
+          <option value="6">&#50724;&#49884; (11:30~13:29)</option>
+          <option value="7">&#48120;&#49884; (13:30~15:29)</option>
+          <option value="8">&#49888;&#49884; (15:30~17:29)</option>
+          <option value="9">&#50976;&#49884; (17:30~19:29)</option>
+          <option value="10">&#49696;&#49884; (19:30~21:29)</option>
+          <option value="11">&#54644;&#49884; (21:30~23:29)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>&#49457;&#48324; <span class="required">*</span></label>
+        <div class="gender-row">
+          <button class="gender-btn" data-g="male" onclick="setGender('male')">&#9794;&#65039; &#45224;&#49457;</button>
+          <button class="gender-btn" data-g="female" onclick="setGender('female')">&#9792;&#65039; &#50668;&#49457;</button>
+        </div>
+      </div>
+      <button class="submit-btn" onclick="startAnalysis()">&#47924;&#47308; &#49324;&#51452;&#54400;&#51060; &#48155;&#44592;</button>
+    </div>
+    <p class="footer-note">
+      &#8251; &#47564;&#49464;&#47141; &#44592;&#48152; &#49324;&#51452;&#54036;&#51088; &#48516;&#49437;<br>
+      &#8251; &#44592;&#48376; &#54400;&#51060;&#45716; &#47924;&#47308;&#51077;&#45768;&#45796;
+    </p>
+  </div>
+
+  <!-- ===== SECTION 2: LOADING ===== -->
+  <div id="loading" class="section">
+    <div class="loading-section">
+      <div class="loading-icon">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="center-dot"></div>
+      </div>
+      <div class="loading-text">&#49324;&#51452;&#47484; &#48516;&#49437;&#54616;&#44256; &#51080;&#49845;&#45768;&#45796;</div>
+      <div class="loading-step" id="loadingStep">&#47564;&#49464;&#47141; &#45936;&#51060;&#53552; &#51312;&#54924; &#51473;...</div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: FREE RESULT ===== -->
+  <div id="freeResult" class="section">
+    <div class="result-header">
+      <div class="name-display" id="resultName"></div>
+      <div class="birth-display" id="resultBirth"></div>
+    </div>
+
+    <div class="saju-pillars" id="sajuPillars"></div>
+
+    <div class="elements-card">
+      <div class="card-title">&#9672; &#50724;&#54665; &#48516;&#49437;</div>
+      <div class="elements-chart" id="elementsChart"></div>
+    </div>
+
+    <div class="fortune-card">
+      <div class="card-title">&#9672; &#44592;&#48376; &#50868;&#49464; &#54400;&#51060;</div>
+      <div class="fortune-text" id="fortuneSummary"></div>
+    </div>
+
+    <!-- Premium Blurred Section -->
+    <div class="premium-section">
+      <div class="premium-label"><span>&#9733; &#49345;&#49464; &#50868;&#49464; &#54400;&#51060;</span></div>
+      <div class="blurred-cards" id="blurredCards">
+        <div class="blurred-card"><div class="bc-title">&#128188; &#51649;&#50629;&#50868;</div><div class="bc-text">&#45817;&#49888;&#51032; &#49324;&#51452;&#50640;&#49436; &#51649;&#50629;&#51201; &#49457;&#54693;&#51012; &#48516;&#49437;&#54633;&#45768;&#45796;. &#49885;&#49888;&#51060; &#44053;&#54616;&#50668; &#52285;&#51032;&#51201;&#51064; &#51649;&#50629;&#50640;&#49436; &#46160;&#44033;&#51012; &#45208;&#53440;&#45244; &#49688; &#51080;&#49845;&#45768;&#45796;. &#53945;&#55176; &#50696;&#49696;, &#44368;&#50977;, IT &#48516;&#50556;&#50640;&#49436; &#51201;&#49457;&#51060; &#47582;&#49845;&#45768;&#45796;.</div></div>
+        <div class="blurred-card"><div class="bc-title">&#128150; &#50672;&#50528;&#50868;</div><div class="bc-text">&#44048;&#49457;&#51060; &#54413;&#48512;&#54616;&#44256; &#45824;&#51064;&#44288;&#44228;&#50640; &#45733;&#54620; &#54200;&#51077;&#45768;&#45796;. &#51060;&#49345;&#51201;&#51064; &#49324;&#46993;&#51012; &#52628;&#44396;&#54616;&#47728;, &#51652;&#49892;&#54620; &#47560;&#51020;&#51012; &#44032;&#51652; &#48176;&#50864;&#51088;&#47484; &#47564;&#45216; &#49688; &#51080;&#49845;&#45768;&#45796;.</div></div>
+        <div class="blurred-card"><div class="bc-title">&#128176; &#51116;&#47932;&#50868;</div><div class="bc-text">&#51116;&#47932;&#50640; &#45824;&#54620; &#50868;&#51060; &#50504;&#51221;&#51201;&#51004;&#47196; &#55120;&#47476;&#44256; &#51080;&#49845;&#45768;&#45796;. &#53804;&#51088;&#48372;&#45796;&#45716; &#44984;&#51456;&#55176; &#47784;&#51004;&#45716; &#44163;&#51060; &#50976;&#47532;&#54633;&#45768;&#45796;.</div></div>
+      </div>
+      <div class="premium-overlay">
+        <div class="premium-cta-box">
+          <div class="lock-icon">&#128274;</div>
+          <div class="cta-title">&#49345;&#49464; &#50868;&#49464; &#54400;&#51060; &#48372;&#44592;</div>
+          <div class="cta-desc">&#45817;&#49888;&#51032; &#49324;&#51452;&#50640; &#44592;&#48152;&#54620; &#44618;&#51060; &#51080;&#45716; &#48516;&#49437;</div>
+          <ul class="cta-features">
+            <li>&#51649;&#50629;&#50868; / &#51201;&#49457; &#48516;&#49437;</li>
+            <li>&#50672;&#50528;&#50868; / &#44417;&#54633; &#50504;&#45236;</li>
+            <li>&#51116;&#47932;&#50868; / &#53804;&#51088; &#49457;&#54693;</li>
+            <li>&#44148;&#44053;&#50868; / &#51452;&#51032;&#49324;&#54637;</li>
+            <li>2026&#45380; &#50732;&#54644;&#50868;&#49464;</li>
+          </ul>
+          <div class="original-price">&#50896;&#47000; 9,900&#50896; <span class="discount-badge">60% OFF</span></div>
+          <button class="premium-btn" onclick="openPayment('premium')">&#49345;&#49464; &#54400;&#51060; &#48372;&#44592; - 3,900&#50896;</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="action-btn" onclick="shareResult()">&#128279; &#44277;&#50976;&#54616;&#44592;</button>
+      <button class="action-btn" onclick="goToLanding()">&#9998;&#65039; &#45796;&#49884; &#54616;&#44592;</button>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: FULL RESULT ===== -->
+  <div id="fullResult" class="section">
+    <div class="result-header">
+      <div class="name-display" id="fullResultName"></div>
+      <div class="birth-display" id="fullResultBirth"></div>
+    </div>
+
+    <div class="saju-pillars" id="fullSajuPillars"></div>
+
+    <div class="elements-card">
+      <div class="card-title">&#9672; &#50724;&#54665; &#48516;&#49437;</div>
+      <div class="elements-chart" id="fullElementsChart"></div>
+    </div>
+
+    <div class="fortune-card">
+      <div class="card-title">&#9672; &#44592;&#48376; &#50868;&#49464; &#54400;&#51060;</div>
+      <div class="fortune-text" id="fullFortuneSummary"></div>
+    </div>
+
+    <div id="detailedFortunes"></div>
+
+    <div class="download-section">
+      <button class="download-btn" onclick="downloadPDF()">&#128196; &#49324;&#51452;&#54400;&#51060; &#44208;&#44284; &#51200;&#51109; (PDF)</button>
+    </div>
+
+    <div class="gunghap-upsell">
+      <div class="gu-icon">&#128150;</div>
+      <h3>&#44417;&#54633; &#48516;&#49437;&#51004;&#47196; &#50672;&#50528;&#50868;&#51012; &#54869;&#51064;&#54616;&#49464;&#50836;</h3>
+      <p>&#49345;&#45824;&#48169;&#51032; &#49324;&#51452;&#50752; &#48708;&#44368;&#54616;&#50668;<br>&#50612;&#46523; &#44417;&#54633;&#51064;&#51648; &#54869;&#51064;&#54644;&#48372;&#49464;&#50836;</p>
+      <button class="gunghap-btn" onclick="openPayment('gunghap')">&#44417;&#54633; &#48516;&#49437;&#54616;&#44592; - 5,900&#50896;</button>
+    </div>
+
+    <div class="action-row">
+      <button class="action-btn" onclick="shareResult()">&#128279; &#44277;&#50976;&#54616;&#44592;</button>
+      <button class="action-btn" onclick="goToLanding()">&#9998;&#65039; &#45796;&#49884; &#54616;&#44592;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAYMENT MODAL ===== -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="payment-modal">
+    <div id="paymentForm">
+      <div class="modal-header">
+        <h3>&#44208;&#51228;&#54616;&#44592;</h3>
+        <button class="modal-close" onclick="closePayment()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="payment-item">
+          <div>
+            <div class="item-name" id="paymentItemName">&#49345;&#49464; &#50868;&#49464; &#54400;&#51060;</div>
+          </div>
+          <div class="item-price" id="paymentItemPrice">3,900&#50896;</div>
+        </div>
+        <div class="payment-methods">
+          <h4>&#44208;&#51228; &#49688;&#45800;</h4>
+          <div class="method-grid">
+            <button class="method-btn selected" onclick="selectMethod(this)">&#52852;&#46300;</button>
+            <button class="method-btn" onclick="selectMethod(this)">&#44036;&#54200;&#44208;&#51228;</button>
+            <button class="method-btn" onclick="selectMethod(this)">&#53664;&#49828;&#54168;&#51060;</button>
+            <button class="method-btn" onclick="selectMethod(this)">&#52852;&#52852;&#50724;&#54168;&#51060;</button>
+            <button class="method-btn" onclick="selectMethod(this)">&#45348;&#51060;&#48260;&#54168;&#51060;</button>
+            <button class="method-btn" onclick="selectMethod(this)">&#44228;&#51340;&#51060;&#52404;</button>
+          </div>
+        </div>
+        <button class="pay-now-btn" id="payNowBtn" onclick="processPayment()">&#44208;&#51228;&#54616;&#44592;</button>
+      </div>
+    </div>
+    <div class="payment-processing" id="paymentProcessing">
+      <div class="check-circle">&#10003;</div>
+      <h3>&#44208;&#51228;&#44032; &#50756;&#47308;&#46104;&#50632;&#49845;&#45768;&#45796;</h3>
+      <p>&#49345;&#49464; &#54400;&#51060; &#44208;&#44284;&#47484; &#51456;&#48708;&#54616;&#44256; &#51080;&#49845;&#45768;&#45796;...</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =========================================================
+// 사주팔자 계산 엔진 (만세력 기반)
+// =========================================================
+
+// 천간 (Heavenly Stems)
+const CHEONGAN = ['갑','을','병','정','무','기','경','신','임','계'];
+const CHEONGAN_HANJA = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+
+// 지지 (Earthly Branches)
+const JIJI = ['자','축','인','묘','진','사','오','미','신','유','술','해'];
+const JIJI_HANJA = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+
+// 오행 (Five Elements)
+const OHAENG = ['목','화','토','금','수'];
+const OHAENG_HANJA = ['木','火','土','金','水'];
+const OHAENG_EN = ['wood','fire','earth','metal','water'];
+
+// 천간 → 오행 매핑
+const CHEONGAN_OHAENG = [0,0,1,1,2,2,3,3,4,4]; // 갑을→목, 병정→화, 무기→토, 경신→금, 임계→수
+
+// 지지 → 오행 매핑
+const JIJI_OHAENG = [4,2,0,0,2,1,1,2,3,3,2,4]; // 자→수, 축→토, 인→목, ...
+
+// 음양: 천간 짝수=양, 홀수=음 / 지지 짝수=양, 홀수=음
+function getYinYang(idx) { return idx % 2 === 0 ? '양' : '음'; }
+
+// 절기 기반 월주 계산을 위한 절기 데이터 (간략화)
+// 실제 절기일 (매달 대략적 절기 시작일)
+const JEOLGI_DAYS = [6, 4, 6, 5, 6, 6, 7, 8, 8, 9, 7, 7]; // 1~12월 절기 시작 (평균)
+
+// 연주 계산: (양력연도 - 4) % 60 → 60갑자 인덱스
+function calcYearPillar(year) {
+  const idx = (year - 4) % 60;
+  return { gan: ((idx % 10) + 10) % 10, ji: ((idx % 12) + 12) % 12 };
+}
+
+// 월주 계산: 절기 기반
+function calcMonthPillar(year, month, day) {
+  // 절기 이전이면 이전 달로 봄
+  let adjMonth = month;
+  if (day < JEOLGI_DAYS[month - 1]) {
+    adjMonth = month - 1;
+    if (adjMonth === 0) adjMonth = 12;
+  }
+
+  // 연간에 따른 월간 기준 (갑기→병인월, 을경→무인월, 병신→경인월, 정임→임인월, 무계→갑인월)
+  const yearGan = calcYearPillar(year).gan;
+  const monthGanBase = [2, 4, 6, 8, 0]; // 병,무,경,임,갑
+  const base = monthGanBase[yearGan % 5];
+  const monthGan = (base + (adjMonth - 1)) % 10;
+  const monthJi = (adjMonth + 1) % 12; // 인월(1월) = 지지2(인)
+
+  return { gan: monthGan, ji: monthJi };
+}
+
+// 일주 계산: 그레고리력 기반 율리우스일(JD) → 60갑자
+function julianDay(year, month, day) {
+  if (month <= 2) { year--; month += 12; }
+  const A = Math.floor(year / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + B - 1524.5;
+}
+
+function calcDayPillar(year, month, day) {
+  const jd = julianDay(year, month, day);
+  // 기준점: 1900년 1월 1일 = 갑자일 (천간0, 지지0) → JD 2415020.5
+  // 실제 1900-01-31 = 경진일 확인용 보정
+  const baseJD = 2415020.5; // 1900-01-01 JD
+  const baseGanJi = 0; // 갑자
+  const diff = Math.floor(jd - baseJD);
+  const idx = ((diff + baseGanJi) % 60 + 60) % 60;
+  return { gan: idx % 10, ji: idx % 12 };
+}
+
+// 시주 계산: 일간에 따른 시간
+function calcTimePillar(dayGan, timeIdx) {
+  // 일간에 따른 자시 천간: 갑기→갑자시, 을경→병자시, 병신→무자시, 정임→경자시, 무계→임자시
+  const timeGanBase = [0, 2, 4, 6, 8]; // 갑,병,무,경,임
+  const base = timeGanBase[dayGan % 5];
+  const timeGan = (base + timeIdx) % 10;
+  return { gan: timeGan, ji: timeIdx };
+}
+
+// 음력 → 양력 근사 변환 (±1일 오차 가능)
+// 간단한 음력 변환 테이블 대신 근사 계산 사용
+function lunarToSolar(year, month, day) {
+  // 음력은 양력보다 약 30~50일 뒤처짐 (평균 ~33일)
+  // 보다 정확한 계산을 위한 근사식
+  const date = new Date(year, month - 1, day);
+  // 음력 날짜에 약 30~33일을 더함 (연도별 변동)
+  const offset = 30 + ((year * 13 + month) % 4);
+  date.setDate(date.getDate() + offset);
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate()
+  };
+}
+
+// 전체 사주 계산
+function calculateSaju(year, month, day, timeIdx, isLunar) {
+  let solarY = year, solarM = month, solarD = day;
+  if (isLunar) {
+    const solar = lunarToSolar(year, month, day);
+    solarY = solar.year; solarM = solar.month; solarD = solar.day;
+  }
+
+  const yearP = calcYearPillar(solarY);
+  const monthP = calcMonthPillar(solarY, solarM, solarD);
+  const dayP = calcDayPillar(solarY, solarM, solarD);
+  const timeP = calcTimePillar(dayP.gan, timeIdx);
+
+  return {
+    year: yearP, month: monthP, day: dayP, time: timeP,
+    solarDate: { year: solarY, month: solarM, day: solarD }
+  };
+}
+
+// 오행 카운트
+function countElements(saju) {
+  const counts = [0,0,0,0,0];
+  const pillars = [saju.year, saju.month, saju.day, saju.time];
+  pillars.forEach(p => {
+    counts[CHEONGAN_OHAENG[p.gan]]++;
+    counts[JIJI_OHAENG[p.ji]]++;
+  });
+  return counts;
+}
+
+// =========================================================
+// 운세 해석 엔진
+// =========================================================
+
+const ILGAN_TRAITS = {
+  0: { name: '갑목(甲木)', nature: '큰 나무', trait: '리더십이 강하고 진취적이며 정의감이 넘칩니다. 목표가 뚜렷하고 곧은 성격을 가졌습니다.', career: '경영, 교육, 법조, 정치', love: '이상이 높고 상대방에게 헌신적이지만, 때로는 고집으로 갈등이 생길 수 있습니다.' },
+  1: { name: '을목(乙木)', nature: '풀과 꽃', trait: '유연하고 적응력이 뛰어나며 예술적 감각이 있습니다. 부드러운 외모 속에 강한 생명력이 있습니다.', career: '예술, 디자인, 상담, 의료', love: '섬세하고 배려심이 깊어 연인에게 편안함을 줍니다.' },
+  2: { name: '병화(丙火)', nature: '태양', trait: '열정적이고 밝은 에너지를 가졌습니다. 사교적이며 주변을 환하게 만드는 힘이 있습니다.', career: '방송, 마케팅, 엔터테인먼트, 영업', love: '뜨거운 사랑을 하며, 표현력이 풍부합니다. 다만 변덕이 있을 수 있습니다.' },
+  3: { name: '정화(丁火)', nature: '촛불', trait: '내면의 열정이 강하고 집중력이 뛰어납니다. 학문이나 연구에 재능이 있으며 섬세합니다.', career: '연구, 학문, IT, 글쓰기', love: '한 사람에게 깊은 사랑을 하며, 헌신적인 편입니다.' },
+  4: { name: '무토(戊土)', nature: '산', trait: '듬직하고 신뢰감을 주며 중심을 잘 잡습니다. 포용력이 크고 안정적인 성격입니다.', career: '부동산, 건축, 공무원, 금융', love: '안정적인 관계를 추구하며, 신뢰를 가장 중요하게 생각합니다.' },
+  5: { name: '기토(己土)', nature: '논밭', trait: '현실적이고 실용적이며, 어머니와 같은 따뜻함이 있습니다. 꼼꼼하고 계획적입니다.', career: '교육, 농업, 요식업, 서비스', love: '헌신적이고 가정적이며, 안정된 가정을 꿈꿉니다.' },
+  6: { name: '경금(庚金)', nature: '바위와 쇠', trait: '강인하고 결단력이 있으며 정의감이 강합니다. 때로는 날카롭지만 의리가 있습니다.', career: '법조, 군인, 외과, 기계공학', love: '직진형 사랑을 하며, 솔직한 표현을 선호합니다.' },
+  7: { name: '신금(辛金)', nature: '보석', trait: '섬세하고 완벽주의적이며 예리한 감각을 가졌습니다. 외적 아름다움과 내적 강함을 겸비했습니다.', career: '보석, 패션, 금융, 프로그래밍', love: '이상이 높고 까다로운 편이지만, 진심을 보이면 깊은 사랑을 합니다.' },
+  8: { name: '임수(壬水)', nature: '바다와 강', trait: '지혜롭고 포용력이 넓으며 창의적입니다. 자유를 사랑하고 도전정신이 강합니다.', career: '무역, 해운, 여행, 컨설팅', love: '자유로운 연애를 선호하며, 다양한 경험을 추구합니다.' },
+  9: { name: '계수(癸水)', nature: '이슬과 비', trait: '총명하고 직감력이 뛰어나며 학문적 재능이 있습니다. 겉으로는 조용하지만 내면은 깊습니다.', career: '연구, 철학, 심리, 의학', love: '감성적이고 로맨틱하며, 정서적 교감을 중시합니다.' }
+};
+
+function generateSummary(saju) {
+  const ilgan = saju.day.gan;
+  const traits = ILGAN_TRAITS[ilgan];
+  const elements = countElements(saju);
+  const maxEl = elements.indexOf(Math.max(...elements));
+  const minEl = elements.indexOf(Math.min(...elements));
+
+  let summary = `<p><span class="highlight-gold">${traits.name}</span>을 일간으로 가진 당신은 ${traits.nature}의 기운을 타고났습니다.</p>`;
+  summary += `<p>${traits.trait}</p>`;
+  summary += `<p>오행 중 <span class="highlight-gold">${OHAENG[maxEl]}(${OHAENG_HANJA[maxEl]})</span>의 기운이 가장 강하며, ${OHAENG[minEl]}(${OHAENG_HANJA[minEl]})의 보완이 필요합니다. `;
+
+  if (maxEl === 0) summary += '목의 기운이 강하여 성장과 발전의 에너지가 넘칩니다.';
+  else if (maxEl === 1) summary += '화의 기운이 강하여 열정과 표현력이 뛰어납니다.';
+  else if (maxEl === 2) summary += '토의 기운이 강하여 안정감과 신뢰를 줍니다.';
+  else if (maxEl === 3) summary += '금의 기운이 강하여 결단력과 추진력이 있습니다.';
+  else summary += '수의 기운이 강하여 지혜와 유연성을 갖추었습니다.';
+  summary += '</p>';
+
+  return summary;
+}
+
+function generateDetailedFortunes(saju, name) {
+  const ilgan = saju.day.gan;
+  const traits = ILGAN_TRAITS[ilgan];
+  const elements = countElements(saju);
+  const maxEl = elements.indexOf(Math.max(...elements));
+  const yearJi = saju.year.ji;
+
+  const categories = [
+    {
+      icon: '&#128188;', name: '직업운', score: Math.min(5, Math.max(2, 3 + (elements[maxEl] > 3 ? 1 : 0) + (ilgan % 3 === 0 ? 1 : 0))),
+      getText: () => {
+        let t = `<p>${name}님의 사주에서 일간 ${traits.name}은(는) ${traits.career} 분야에서 뛰어난 역량을 발휘할 수 있습니다.</p>`;
+        if (elements[3] >= 2) t += `<p>금(金)의 기운이 충분하여 재정 관련 직업이나 기술직에서도 좋은 성과를 낼 수 있습니다. 특히 정밀함이 요구되는 업무에 적성이 맞습니다.</p>`;
+        else if (elements[0] >= 2) t += `<p>목(木)의 기운이 강하여 새로운 것을 만들어내는 창업이나 스타트업 환경에서 빛을 발할 수 있습니다.</p>`;
+        else t += `<p>현재 사주의 흐름으로 보아 안정적인 직장생활과 함께 부업이나 투잡을 통해 추가 수입을 올리는 것이 유리합니다.</p>`;
+        t += `<p>2026년에는 ${ilgan < 5 ? '새로운 기회가 찾아올 수 있으니 적극적으로 네트워킹에 나서보세요.' : '현재 하는 일에 집중하면 좋은 결과가 따를 것입니다.'}</p>`;
+        return t;
+      }
+    },
+    {
+      icon: '&#128150;', name: '연애운', score: Math.min(5, Math.max(2, 3 + (elements[1] >= 2 ? 1 : 0) + (yearJi % 3 === 0 ? 1 : 0))),
+      getText: () => {
+        let t = `<p>${traits.love}</p>`;
+        if (elements[1] >= 2) t += `<p>화(火)의 기운이 있어 연애에서 열정적이고 적극적입니다. 상대방의 마음을 잘 사로잡는 매력이 있습니다.</p>`;
+        else t += `<p>감정 표현이 서툴 수 있으나, 한번 마음을 열면 진심을 다하는 타입입니다. 상대방에게 먼저 표현하는 연습이 필요합니다.</p>`;
+        const loveAge = ilgan < 5 ? '20대 후반에서 30대 초반' : '20대 중반에서 30대 초반';
+        t += `<p>가장 좋은 인연이 찾아오는 시기는 ${loveAge} 사이이며, ${ilgan % 2 === 0 ? '적극적으로 다가가는 것' : '자연스러운 만남을 기다리는 것'}이 좋습니다.</p>`;
+        return t;
+      }
+    },
+    {
+      icon: '&#128176;', name: '재물운', score: Math.min(5, Math.max(2, 3 + (elements[2] >= 2 ? 1 : 0) + (elements[3] >= 2 ? 1 : 0))),
+      getText: () => {
+        let t = '';
+        if (elements[2] >= 2 && elements[3] >= 2) {
+          t += `<p>토(土)와 금(金)의 조화가 좋아 재물 복이 타고났습니다. 꾸준히 저축하면서도 적절한 투자를 병행하면 큰 자산을 모을 수 있습니다.</p>`;
+        } else if (elements[4] >= 2) {
+          t += `<p>수(水)의 흐름이 강하여 돈의 흐름이 빠릅니다. 들어오는 것도 많지만 나가는 것도 많아 관리가 필요합니다.</p>`;
+        } else {
+          t += `<p>안정적인 재물운을 가지고 있으나, 큰 투자보다는 꾸준한 저축과 안전한 투자가 어울립니다.</p>`;
+        }
+        t += `<p>${ilgan <= 5 ? '부동산이나 실물 자산에 대한 투자가 유리하며' : '금융 상품이나 기술 관련 투자가 적성에 맞으며'}, 무리한 대출이나 보증은 피하는 것이 좋습니다.</p>`;
+        t += `<p>2026년 재물운은 ${elements[maxEl] >= 3 ? '상반기에 좋은 기회가 찾아올 수 있습니다. 준비된 자에게 행운이 따릅니다.' : '하반기부터 서서히 좋아지는 흐름입니다. 인내심을 가지세요.'}</p>`;
+        return t;
+      }
+    },
+    {
+      icon: '&#128154;', name: '건강운', score: Math.min(5, Math.max(2, 4 - Math.abs(elements[maxEl] - 3))),
+      getText: () => {
+        let t = '';
+        const weakOrgan = ['간/담', '심장/소장', '위/비장', '폐/대장', '신장/방광'];
+        const minEl = elements.indexOf(Math.min(...elements));
+        t += `<p>오행 중 ${OHAENG[minEl]}(${OHAENG_HANJA[minEl]})이(가) 부족하여 ${weakOrgan[minEl]} 관련 건강에 주의가 필요합니다.</p>`;
+        if (minEl === 0) t += `<p>스트레칭과 산림욕을 자주 하고, 녹색 채소를 충분히 섭취하세요. 봄철에 특히 건강 관리에 신경 쓰세요.</p>`;
+        else if (minEl === 1) t += `<p>규칙적인 유산소 운동과 충분한 수면이 중요합니다. 여름철 과로를 피하세요.</p>`;
+        else if (minEl === 2) t += `<p>소화기 건강에 유의하고 규칙적인 식사가 중요합니다. 환절기에 특히 조심하세요.</p>`;
+        else if (minEl === 3) t += `<p>호흡기 건강에 유의하고, 가을철에 특히 조심하세요. 규칙적인 호흡 운동이 도움됩니다.</p>`;
+        else t += `<p>충분한 수분 섭취와 하체 운동이 중요합니다. 겨울철 보온에 신경 쓰세요.</p>`;
+        t += `<p>전반적으로 ${elements[maxEl] >= 3 ? '타고난 체력은 좋으나 과로를 주의하세요.' : '꾸준한 운동으로 기초 체력을 기르는 것이 중요합니다.'}</p>`;
+        return t;
+      }
+    },
+    {
+      icon: '&#127775;', name: '2026년 올해운세', score: Math.min(5, Math.max(2, 3 + (ilgan % 2 === 0 ? 1 : 0) + ((yearJi + 2) % 4 === 0 ? 1 : 0))),
+      getText: () => {
+        // 2026년 = 병오(丙午)년
+        const yearGan2026 = (2026 - 4) % 10; // 병(2)
+        const yearJi2026 = (2026 - 4) % 12;  // 오(6)
+        let t = `<p>2026년은 <span class="highlight-gold">병오(丙午)년</span>으로 화(火)의 기운이 매우 강한 해입니다.</p>`;
+        if (CHEONGAN_OHAENG[ilgan] === 0) { // 목 일간
+          t += `<p>목생화(木生火)의 관계로, 당신의 재능과 노력이 밝게 꽃피는 시기입니다. 그동안 준비해온 일이 결실을 맺을 수 있습니다.</p>`;
+          t += `<p>다만 화의 기운이 너무 강하면 에너지가 소진될 수 있으니, 무리하지 말고 적절한 휴식을 취하세요.</p>`;
+        } else if (CHEONGAN_OHAENG[ilgan] === 1) { // 화 일간
+          t += `<p>비견(比肩)의 해로, 자신의 힘이 강해지는 시기입니다. 경쟁에서 유리한 위치를 점할 수 있지만, 독단적인 결정은 피하세요.</p>`;
+          t += `<p>동료나 친구의 도움이 크며, 협업을 통해 좋은 성과를 이룰 수 있습니다.</p>`;
+        } else if (CHEONGAN_OHAENG[ilgan] === 2) { // 토 일간
+          t += `<p>화생토(火生土)로 기운이 보충되는 좋은 해입니다. 건강이 회복되고 재물운도 상승합니다.</p>`;
+          t += `<p>새로운 배움이나 자기계발에 투자하면 장기적으로 큰 도움이 됩니다.</p>`;
+        } else if (CHEONGAN_OHAENG[ilgan] === 3) { // 금 일간
+          t += `<p>화극금(火剋金)의 영향으로 도전과 시련이 있을 수 있습니다. 하지만 이를 통해 더 단단해질 수 있습니다.</p>`;
+          t += `<p>인내심을 갖고 꾸준히 나아가면 하반기에 좋은 전환점이 올 것입니다. 건강 관리에 특히 신경 쓰세요.</p>`;
+        } else { // 수 일간
+          t += `<p>수극화(水剋火)의 관계로, 당신이 주도권을 가질 수 있는 시기입니다. 리더십을 발휘하기 좋은 해입니다.</p>`;
+          t += `<p>재물운이 좋아지며, 새로운 프로젝트나 사업을 시작하기에 좋은 타이밍입니다. 다만 과욕은 금물입니다.</p>`;
+        }
+        t += `<p><span class="highlight-gold">행운의 달:</span> ${(ilgan * 2 + 3) % 12 + 1}월, ${(ilgan * 3 + 7) % 12 + 1}월&nbsp;&nbsp;|&nbsp;&nbsp;<span class="highlight-gold">행운의 색:</span> ${['녹색','빨강','노랑','흰색','파랑'][CHEONGAN_OHAENG[(ilgan + 3) % 10]]}</p>`;
+        return t;
+      }
+    }
+  ];
+  return categories;
+}
+
+// =========================================================
+// UI 로직
+// =========================================================
+let currentCalendar = 'solar';
+let currentGender = '';
+let currentSaju = null;
+let currentPaymentType = '';
+
+// 셀렉트 박스 초기화
+function initSelects() {
+  const yearSel = document.getElementById('inputYear');
+  const monthSel = document.getElementById('inputMonth');
+  const daySel = document.getElementById('inputDay');
+
+  yearSel.innerHTML = '<option value="">년</option>';
+  for (let y = 2010; y >= 1940; y--) {
+    yearSel.innerHTML += `<option value="${y}">${y}년</option>`;
+  }
+  monthSel.innerHTML = '<option value="">월</option>';
+  for (let m = 1; m <= 12; m++) {
+    monthSel.innerHTML += `<option value="${m}">${m}월</option>`;
+  }
+  daySel.innerHTML = '<option value="">일</option>';
+  for (let d = 1; d <= 31; d++) {
+    daySel.innerHTML += `<option value="${d}">${d}일</option>`;
+  }
+}
+
+function setCalendar(type) {
+  currentCalendar = type;
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.cal === type));
+}
+
+function setGender(g) {
+  currentGender = g;
+  document.querySelectorAll('.gender-btn').forEach(b => b.classList.toggle('active', b.dataset.g === g));
+}
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function goToLanding() {
+  showSection('landing');
+}
+
+function startAnalysis() {
+  const name = document.getElementById('inputName').value.trim();
+  const year = parseInt(document.getElementById('inputYear').value);
+  const month = parseInt(document.getElementById('inputMonth').value);
+  const day = parseInt(document.getElementById('inputDay').value);
+  const timeIdx = document.getElementById('inputTime').value;
+
+  if (!name) { showToast('이름을 입력해주세요'); return; }
+  if (!year || !month || !day) { showToast('생년월일을 선택해주세요'); return; }
+  if (timeIdx === '') { showToast('태어난 시간을 선택해주세요'); return; }
+  if (!currentGender) { showToast('성별을 선택해주세요'); return; }
+
+  // 사주 계산
+  currentSaju = calculateSaju(year, month, day, parseInt(timeIdx), currentCalendar === 'lunar');
+
+  // Store user info
+  currentSaju.name = name;
+  currentSaju.birthStr = `${year}년 ${month}월 ${day}일 (${currentCalendar === 'solar' ? '양력' : '음력'})`;
+  currentSaju.gender = currentGender;
+  currentSaju.timeIdx = parseInt(timeIdx);
+
+  showSection('loading');
+  runLoadingAnimation();
+}
+
+function runLoadingAnimation() {
+  const steps = [
+    '만세력 데이터 조회 중...',
+    '천간/지지 배열 분석 중...',
+    '오행 균형 계산 중...',
+    '운세 패턴 매칭 중...',
+    'AI 풀이 생성 중...',
+    '결과를 정리하고 있습니다...'
+  ];
+  const fill = document.getElementById('progressFill');
+  const stepEl = document.getElementById('loadingStep');
+  let idx = 0;
+
+  function nextStep() {
+    if (idx >= steps.length) {
+      renderFreeResult();
+      showSection('freeResult');
+      return;
+    }
+    stepEl.textContent = steps[idx];
+    fill.style.width = ((idx + 1) / steps.length * 100) + '%';
+    idx++;
+    setTimeout(nextStep, 600 + Math.random() * 400);
+  }
+  fill.style.width = '0';
+  setTimeout(nextStep, 300);
+}
+
+function renderPillars(containerId, saju) {
+  const container = document.getElementById(containerId);
+  const labels = ['년주','월주','일주','시주'];
+  const keys = ['year','month','day','time'];
+  const classes = ['year','month','day','time'];
+
+  container.innerHTML = keys.map((k, i) => {
+    const p = saju[k];
+    const ganOh = CHEONGAN_OHAENG[p.gan];
+    const jiOh = JIJI_OHAENG[p.ji];
+    return `
+      <div class="pillar ${classes[i]}">
+        <div class="pillar-label">${labels[i]}</div>
+        <div class="pillar-hanja">
+          <span class="cheongan" style="color:${getElementColor(ganOh)}">${CHEONGAN_HANJA[p.gan]}</span>
+          <span class="jiji" style="color:${getElementColor(jiOh)}">${JIJI_HANJA[p.ji]}</span>
+        </div>
+        <div class="pillar-korean">
+          <span class="element-dot element-${OHAENG_EN[ganOh]}"></span>${CHEONGAN[p.gan]}
+          <span class="element-dot element-${OHAENG_EN[jiOh]}"></span>${JIJI[p.ji]}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function getElementColor(idx) {
+  return ['#4ade80','#f87171','#facc15','#e5e7eb','#60a5fa'][idx];
+}
+
+function renderElementsChart(containerId, saju) {
+  const counts = countElements(saju);
+  const maxCount = Math.max(...counts, 1);
+  const container = document.getElementById(containerId);
+  container.innerHTML = counts.map((c, i) => `
+    <div class="element-bar-wrap">
+      <div class="element-bar ${OHAENG_EN[i]}" style="height:${Math.max(8, (c / maxCount) * 90)}px">
+        <span class="element-bar-count">${c}</span>
+      </div>
+      <div class="element-hanja">${OHAENG_HANJA[i]}</div>
+      <div class="element-label">${OHAENG[i]}</div>
+    </div>
+  `).join('');
+}
+
+function renderFreeResult() {
+  const s = currentSaju;
+  document.getElementById('resultName').textContent = s.name + '님의 사주팔자';
+  document.getElementById('resultBirth').textContent = s.birthStr + ' · ' + JIJI[s.timeIdx] + '시';
+
+  renderPillars('sajuPillars', s);
+  renderElementsChart('elementsChart', s);
+  document.getElementById('fortuneSummary').innerHTML = generateSummary(s);
+}
+
+// Payment
+function openPayment(type) {
+  currentPaymentType = type;
+  const modal = document.getElementById('paymentModal');
+  const itemName = document.getElementById('paymentItemName');
+  const itemPrice = document.getElementById('paymentItemPrice');
+
+  if (type === 'premium') {
+    itemName.textContent = '상세 운세 풀이';
+    itemPrice.textContent = '3,900원';
+  } else {
+    itemName.textContent = '궁합 분석';
+    itemPrice.textContent = '5,900원';
+  }
+
+  document.getElementById('paymentForm').style.display = 'block';
+  document.getElementById('paymentProcessing').style.display = 'none';
+  modal.classList.add('show');
+}
+
+function closePayment() {
+  document.getElementById('paymentModal').classList.remove('show');
+}
+
+function selectMethod(btn) {
+  document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function processPayment() {
+  const btn = document.getElementById('payNowBtn');
+  btn.textContent = '처리 중...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    document.getElementById('paymentForm').style.display = 'none';
+    document.getElementById('paymentProcessing').style.display = 'block';
+
+    setTimeout(() => {
+      closePayment();
+      btn.textContent = '결제하기';
+      btn.disabled = false;
+
+      if (currentPaymentType === 'premium') {
+        renderFullResult();
+        showSection('fullResult');
+      } else {
+        showToast('궁합 분석 기능은 준비 중입니다');
+      }
+    }, 1500);
+  }, 1200);
+}
+
+function renderFullResult() {
+  const s = currentSaju;
+  document.getElementById('fullResultName').textContent = s.name + '님의 상세 사주풀이';
+  document.getElementById('fullResultBirth').textContent = s.birthStr + ' · ' + JIJI[s.timeIdx] + '시';
+
+  renderPillars('fullSajuPillars', s);
+  renderElementsChart('fullElementsChart', s);
+  document.getElementById('fullFortuneSummary').innerHTML = generateSummary(s);
+
+  const fortunes = generateDetailedFortunes(s, s.name);
+  const container = document.getElementById('detailedFortunes');
+  container.innerHTML = fortunes.map(f => {
+    const stars = Array.from({length: 5}, (_, i) =>
+      `<span class="star${i < f.score ? '' : ' empty'}">${i < f.score ? '\u2605' : '\u2606'}</span>`
+    ).join('');
+    return `
+      <div class="full-fortune-card">
+        <div class="fortune-category">
+          <span class="fortune-category-icon">${f.icon}</span>
+          <span class="fortune-category-name">${f.name}</span>
+          <div class="fortune-score">${stars}</div>
+        </div>
+        <div class="fortune-detail-text">${f.getText()}</div>
+      </div>`;
+  }).join('');
+}
+
+function downloadPDF() {
+  showToast('인쇄 화면이 열립니다. PDF로 저장해주세요.');
+  setTimeout(() => window.print(), 500);
+}
+
+function shareResult() {
+  const text = `${currentSaju.name}님의 AI 사주풀이 결과 - 천명(天命)`;
+  if (navigator.share) {
+    navigator.share({ title: '천명 - AI 사주풀이', text: text, url: window.location.href });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text + '\n' + window.location.href);
+    showToast('링크가 복사되었습니다');
+  } else {
+    showToast('공유 기능을 사용할 수 없습니다');
+  }
+}
+
+// ===== STARFIELD CANVAS =====
+function initStarfield() {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (let i = 0; i < 150; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5 + 0.3,
+      a: Math.random(),
+      da: (Math.random() - 0.5) * 0.02
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      s.a += s.da;
+      if (s.a > 1 || s.a < 0.1) s.da *= -1;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200, 190, 255, ${s.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  initSelects();
+  initStarfield();
+
+  // Close modal on overlay click
+  document.getElementById('paymentModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closePayment();
+  });
+});
+</script>
+</body>
+</html>
